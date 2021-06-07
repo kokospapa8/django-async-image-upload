@@ -36,20 +36,6 @@ Resources:
       Description: Daas Thumbnail Generation Function
       FunctionName:
         Ref: LambdaFunctionName
-      Events:
-        UploadImageEvent:
-          Type: S3
-          Properties:
-            Bucket:
-              Ref: SourceImageBucket
-            Events:
-            - s3:ObjectCreated:*
-            Filter:
-              S3Key:
-                Rules:
-                - Name: Prefix
-                  Value:
-                    Ref: TemporaryImagePath
       Policies: AWSLambdaExecute
       MemorySize:
         Ref: MemSize
