@@ -1,0 +1,57 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  thumbnail
+
+  Sample SAM Template for thumbnail with existing s3 bucket
+
+Parameters:
+  LambdaFunctionName:
+    Type: String
+    Default: ThumbnailFunction
+    Description: Name of the lambda function
+  TemporaryImagePath:
+    Type: String
+    Default: temp/
+    Description: Folder path where presigned image uploads to (if you change this you need to change django settings - TEMPORARY_IMAGE_PATH
+  MemSize:
+    Type: Number
+    Default: 1024
+    Description: The size of the memory in MB allocated per invocation of the function.
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 10
+
+Resources:
+  DefaultThumbnailFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: thumbnail/
+      Handler: app.lambda_handler
+      Runtime: python3.8
+      Description: Thumbnail Generation Function
+      FunctionName: ThumbnailFunction
+      Policies: AWSLambdaExecute
+      MemorySize: 1024
+      Environment:
+        Variables:
+          IMAGE_FOLDER: "image/"
+          CALLBACK_URL: "http://localhost:8000/async_image_upload/presignedurl/{key}/"
+          THUMB_DIMENSION_SMALL: 50
+          THUMB_DIMENSION_MEDIUM: 100
+          THUMB_DIMENSION_LARGE: 400
+          BLUR: "True"
+          BLUR_RADIUS: 20
+
+Outputs:
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  # Find out more about other implicit resources you can reference within SAM
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+  DefaultThumbnailFunction:
+    Description: "Thumbnail Function ARN"
+    Value: !GetAtt DefaultThumbnailFunction.Arn
+  SourceImageBucket:
+    Description: "S3 Bucket ARN"
+    Value: !GetAtt SourceImageBucket.Arn

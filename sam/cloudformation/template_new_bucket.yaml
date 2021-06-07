@@ -1,0 +1,131 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'thumbnail
+
+  Sample SAM Template for thumbnail with new s3 bucket
+
+  '
+Parameters:
+  SourceImageBucketName:
+    Type: String
+    Default: thumbnail
+    Description: name of the new bucket for presigned image uploader
+  LambdaFunctionName:
+    Type: String
+    Default: ThumbnailFunction
+    Description: Name of the lambda function
+  TemporaryImagePath:
+    Type: String
+    Default: temp/
+    Description: Folder path where presigned image uploads to (if you change this
+      you need to change django settings - TEMPORARY_IMAGE_PATH
+  MemSize:
+    Type: Number
+    Default: 1024
+    Description: The size of the memory in MB allocated per invocation of the function.
+  ExpirationInDay:
+    Type: Number
+    Default: 1
+    Description: Lifecyfle expiration for temporary image in day
+Globals:
+  Function:
+    Timeout: 10
+Resources:
+  DefaultThumbnailFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: <S3 URI for function code app.py>
+      Handler: app.lambda_handler
+      Runtime: python3.8
+      Description: Daas Thumbnail Generation Function
+      FunctionName:
+        Ref: LambdaFunctionName
+      Events:
+        UploadImageEvent:
+          Type: S3
+          Properties:
+            Bucket:
+              Ref: SourceImageBucket
+            Events:
+            - s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules:
+                - Name: Prefix
+                  Value:
+                    Ref: TemporaryImagePath
+      Policies: AWSLambdaExecute
+      MemorySize:
+        Ref: MemSize
+      Environment:
+        Variables:
+          IMAGE_FOLDER: image/
+          CALLBACK_URL: http://localhost:8000/async_image_upload/presignedurl/{key}/
+          THUMB_DIMENSION_SMALL: 50
+          THUMB_DIMENSION_MEDIUM: 100
+          THUMB_DIMENSION_LARGE: 400
+          BLUR: 'True'
+          BLUR_RADIUS: 20
+  SourceImageBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      BucketName:
+        Ref: SourceImageBucketName
+      LifecycleConfiguration:
+        Rules:
+        - Id: ExpirationRule
+          Prefix:
+            Ref: TemporaryImagePath
+          Status: Enabled
+          ExpirationInDays:
+            Ref: ExpirationInDay
+      AccessControl: PublicRead
+      OwnershipControls:
+        Rules:
+        - ObjectOwnership: BucketOwnerPreferred
+  BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      PolicyDocument:
+        Id: ThumbnailBucketPolicy
+        Version: 2012-10-17
+        Statement:
+        - Sid: PublicReadForGetBucketObjects
+          Effect: Allow
+          Principal: '*'
+          Action: s3:*
+          Resource:
+            Fn::Join:
+            - ''
+            - - 'arn:aws:s3:::'
+              - Ref: SourceImageBucket
+              - /*
+        - Sid: AllowBucketOwnerFullControll
+          Effect: Allow
+          Principal: '*'
+          Action: s3:PutObject
+          Resource:
+            Fn::Join:
+            - ''
+            - - 'arn:aws:s3:::'
+              - Ref: SourceImageBucket
+              - /*
+          Condition:
+            StringEquals:
+              s3:x-amz-acl: bucket-owner-full-control
+      Bucket:
+        Ref: SourceImageBucket
+Outputs:
+  DefaultThumbnailFunction:
+    Description: Thumbnail Function ARN
+    Value:
+      Fn::GetAtt:
+      - DefaultThumbnailFunction
+      - Arn
+  SourceImageBucket:
+    Description: S3 Bucket ARN
+    Value:
+      Fn::GetAtt:
+      - SourceImageBucket
+      - Arn
