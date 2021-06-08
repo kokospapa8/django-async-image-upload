@@ -186,3 +186,29 @@ Goto S3 and click properties tab. Go to `Event notification` and click "create e
 You might need to add CORS rule for your bucket. Refer to following link.
 
 [Using cross-origin resource sharing (CORS)](https://docs.aws.amazon.com/AmazonS3/latest/userguide/cors.html)
+
+## Lambda Optimization
+
+Lambda allocates CPU power in proportion to the amount of memory configured. Since image processing is mostly CPU intensive (with few exceptions) CPU power matters because duration of lambda function affects cost.  As of 2021, Price per 1ms for US East is as follows.
+
+![lambda_pricing](resources/lambda_price.png)
+
+Assuming average mobile client device image upload is around 5~6MB, I will give you my benchmark data so you can optimize your lambda function depending on your usecases. If you use more efficient function code, you might need to get the metric yourself and find best memory for your lambda function.
+
+(in order to avoid, cold start issue, I have ran same file 10 times and took avg of the time)
+
+Function execute following operation
+
+- Pillow
+    - Blur - 50x50, 100x100, 400x400, Original
+    - Thumbnail - 50x50, 100x100, 400x400, Original
+- S3 put operation
+- timeout 30sec
+
+I have tested with image size (100Kb, 500Kb, 1Mb, 5Mb and 10Mb) with lambda memory (512Mb, 1024Mb, 2048Mb, 4096Mb)
+
+![lambda_profile](resources/lambda_profile.png)
+
+As you can see from the graph, bigger memory is not necessarily cheaper. It can be faster but since this is async operation, I recommend to go with less cost over time consumption.
+
+Only use this as reference and you should test with your own data and find out optimal memory for your lambda function.

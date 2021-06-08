@@ -13,6 +13,8 @@ Using S3(and others storages in the futures) presigned-url feature, client can d
 Once image is uploaded, api server gets callback once image processing in finished elsewhere(serverless function in this case.
 
 Current version only provide asynchronous upload with lambda function. There are a lot more to do with this module.
+- separate sam module with this package 
+- automate sam deployment with one command with prompt 
 - Unittest and github action 
 - Multiple presigned url creation 
 - Lambda in VPC if function needs to communicate resources in VPC. NAT support for callback
