@@ -13,15 +13,15 @@ Using S3(and others storages in the futures) presigned-url feature, client can d
 Once image is uploaded, api server gets callback once image processing in finished elsewhere(serverless function in this case.
 
 Current version only provide asynchronous upload with lambda function. There are a lot more to do with this module.
-- [ ] Unittest and github action 
-- [ ] Multiple presigned url creation 
-- [ ] Lambda in VPC if function needs to communicate resources in VPC. NAT support for callback
-- [ ] Monitoring and alert 
-- [ ] Decouple S3 Event trigger with lambda with SNS or EventBridge
-- [ ] Hookup aws rekognition or other vision service for image metadata 
-- [ ] GCP signed url and cloud function 
-- [ ] Azure shared Access Signature(SAS) with Azure function
-- [ ] Support for Django 2.X (Jsonfield)
+- Unittest and github action 
+- Multiple presigned url creation 
+- Lambda in VPC if function needs to communicate resources in VPC. NAT support for callback
+- Monitoring and alert 
+- Decouple S3 Event trigger with lambda with SNS or EventBridge
+- Hookup aws rekognition or other vision service for image metadata 
+- GCP signed url and cloud function 
+- Azure shared Access Signature(SAS) with Azure function
+- Support for Django 2.X (Jsonfield)
 
 # Architecture (AWS version)
 ![flow](resources/flow.png)
@@ -55,35 +55,29 @@ I provided SAM tempalte to automate deployment. Refer to following page for deta
 
 ## Django API Module
 
-
 Install Django-async-image-upload::
 
-```
-pip install django-async-image-upload
-```
+    pip install django-async-image-upload
 
-Add it to your `INSTALLED_APPS`:
 
-```python
+Add it to your INSTALLED_APPS::
+
     INSTALLED_APPS = (
-        ...
+
         'django_async_image_upload.apps.AsyncImageUploadAppConfig',
-        ...
+
     )
-```
 
-Add Django-async-image-upload's URL patterns:
 
-```python
+Add Django-async-image-upload's URL patterns::
+
     from django_async_image_upload import urls as django_async_image_upload_urls
-
-
+    
     urlpatterns = [
-        ...
         url(r'^', include(django_async_image_upload_urls)),
-        ...
     ]
-```
+    
+
 
 # Settings
 Available settings are:
@@ -96,7 +90,7 @@ Available settings are:
 - folder path where image is uploaded using presigned url
 - default: "temp/" 
 
-`ASYNC_IMAGE_UPLOAD_PRESIGNED_URL_EXPIRATION `
+`ASYNC_IMAGE_UPLOAD_PRESIGNED_URL_EXPIRATION`
 - Presigned url expiration in second
 - default: 1000
 
