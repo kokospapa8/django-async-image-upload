@@ -17,6 +17,7 @@ Current version only provide asynchronous upload with lambda function. There are
 - Unittest and github action 
 - Multiple presigned url creation 
 - Support for Django 2.X (Jsonfield)
+- Support for azure, gcp
 
 * In order to use this module you need to deploy [cloud counter part](https://github.com/kokospapa8/cloud-async-image-upload).
 ** Current version only support AWS. 
