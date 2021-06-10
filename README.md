@@ -12,6 +12,7 @@ However most of the packages process image on django server. Some are partially 
 Using S3(and others storages in the futures) presigned-url feature, client can directly uploads to S3 without involving backend server.
 Once image is uploaded, api server gets callback once image processing in finished elsewhere(serverless function in this case.
 
+## TODO
 Current version only provide asynchronous upload with lambda function. There are a lot more to do with this module.
 - Unittest and github action 
 - Multiple presigned url creation 
