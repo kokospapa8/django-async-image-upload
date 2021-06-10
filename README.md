@@ -2,8 +2,8 @@
 
 Async image upload using presigned url for Django.
 
-This module provide async processing capability using cloud architecture. 
-With this you can decouple code from Django api server and easily extend image processing capability.
+This module provide async processing capability using cloud architecture for Django server. 
+Using this module, you can decouple code from Django api server and easily extend image processing capability.
 
 There are already plenty of good thumbnail packages such as [sorl-thumbnail](https://github.com/jazzband/sorl-thumbnail), 
 [django-imagekit](https://github.com/matthewwithanm/django-imagekit).
@@ -13,19 +13,14 @@ Using S3(and others storages in the futures) presigned-url feature, client can d
 Once image is uploaded, api server gets callback once image processing in finished elsewhere(serverless function in this case.
 
 Current version only provide asynchronous upload with lambda function. There are a lot more to do with this module.
-- separate sam module with this package 
-- automate sam deployment with one command with prompt 
 - Unittest and github action 
 - Multiple presigned url creation 
-- Lambda in VPC if function needs to communicate resources in VPC. NAT support for callback
-- Monitoring and alert 
-- Decouple S3 Event trigger with lambda with SNS or EventBridge
-- Hookup aws rekognition or other vision service for image metadata 
-- GCP signed url and cloud function 
-- Azure shared Access Signature(SAS) with Azure function
 - Support for Django 2.X (Jsonfield)
 
-# Architecture (AWS version)
+* In order to use this module you need to deploy [cloud counter part](https://github.com/kokospapa8/cloud-async-image-upload).
+** Current version only support AWS. 
+
+# Architecture (AWS)
 ![flow](resources/flow.png)
 
 1. Client request for `presigned url` for image upload.
@@ -38,7 +33,7 @@ Current version only provide asynchronous upload with lambda function. There are
 Refer to [sequence diagram](resources/sd.png) for more detail.
 
 ## Requirements
-Because this module supports native django json fields,
+Because this module supports native django json fields. (will support 2.X in the future)
 - Django 3.1 and up
 - Python 3.6 and up
 - DB: MariaDB 10.2.7+, MySQL 5.7.8+, Oracle, PostgreSQL, and SQLite
@@ -52,8 +47,8 @@ Because this module supports native django json fields,
 # Instruction 
 ## Cloud module
 You need to deploy cloud module(storage and serverless function) first. 
-I provided SAM tempalte to automate deployment. Refer to following page for detailed instruction.
-[Cloud module](cloud.md)
+I provided [SAM template](https://github.com/kokospapa8/django-async-image-upload) to automate deployment. 
+Refer to following page for detailed instruction.
 
 ## Django API Module
 
@@ -129,33 +124,26 @@ Order of the key matters, I recommend you to send in order of "key, acl, x-amz-m
 ![postman](resources/postman.png)
 
 
-## Checkup 
-Because of the nature of the async operation, you won't be able to find out the result of the upload.
-You can use following options.
+## How to check successful process from client 
+Because of the nature of the async operation, you won't be able to find out the result of the upload right after you upload to S3.
+You have following options.
 
 1. Long polling - GET request to `/async_image/presignedurl/<uuid>` for completion. 
 2. Open connection with sever using technics such as websocket, graphql.
 3. Assume operation is successful workaround it.
 
-It's your choice.
+It's your choice. (There might be better solution out there. Please let me know if you have simpler solution.)
 
 
 ## Extra note
 If you are deploying on EC2, your EC2 should have appropriate IAM credential or EC2 role with `s3:putOject` permission on particular bucket.
 
 
-Running Tests
--------------
+## Running Tests
 TBD
 
 
-Development commands
----------------------
-
-
-Credits
--------
-
+## Credits
 Tools used in rendering this package:
 
 *  [Cookiecutter](https://github.com/cookiecutter/cookiecutter)
